@@ -7,7 +7,7 @@ public class ViewPatientDataBO extends ViewPatientDataDAO {
 
     public static Vector getLabelData() {
         Vector colDisp = new Vector();
-        Vector colNameDB = getColNamesFromDatabase("*","PATIENT_DATA");
+        Vector colNameDB = getColNamesFromDatabase("*","patient_data");
 
         for(int i = 0; i<=colNameDB.indexOf(colNameDB.lastElement()); i++) {//need to change this
             for(int j = 0; j<DB_COL.length;j++) {
@@ -21,7 +21,7 @@ public class ViewPatientDataBO extends ViewPatientDataDAO {
 
     public static Vector<Vector> getRowData(String searchBySelection, String searchByText) {
 
-        return getRowDataFromDatabase("*","PATIENT_DATA", searchBySelection, searchByText);
+        return getRowDataFromDatabase("*","patient_data", searchBySelection, searchByText);
     }
 
     public static void updateDatabase(Vector vector) {

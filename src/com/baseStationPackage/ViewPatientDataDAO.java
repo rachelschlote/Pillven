@@ -27,41 +27,11 @@ public class ViewPatientDataDAO extends SQLiteJDBC{
 
 
     public static Vector<Vector> getRowDataFromDatabase(String select, String from, String where, String is) {
-
-        String sql = buildSelectSQL(select, from, where, is);
-        Vector<Vector> rowData = new Vector<>();
-        Vector row;
-        try {
-            Connection conn = connect();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            ResultSetMetaData meta = rs.getMetaData();
-            int colCount = meta.getColumnCount();
-            row = new Vector(colCount);
-//            for (int i = 1; i <= colCount; i++) {
-//                if(disp(meta.getColumnName(i))) {
-//                    row.add(meta.getColumnName(i));
-//                }
-//            }
-//            rowData.add(row);
-            while(rs.next()) {
-                row = new Vector(colCount);
-                for(int i = 1; i <= colCount; i++) {
-                   // if(disp(meta.getColumnName(i))) {
-                        row.add(rs.getString(i));
-                   // }
-                }
-                rowData.add(row);
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return rowData;
+        return getRowData(select,from,where,is);
     }
 
     public static void setRowDataToDatabase(Vector data) {
-        Vector colNames = getColNamesFromDatabase("*", "PATIENT_DATA");
+        Vector colNames = getColNamesFromDatabase("*", "patient_data");
         String setValue = "";
         String setColumn = "";
         String whereColumn = "";
@@ -77,11 +47,11 @@ public class ViewPatientDataDAO extends SQLiteJDBC{
                 moreSet = moreSet + ", ";
             }
         }
-        String sql = buildUpdateSQL("PATIENT_DATA",whereColumn,whereValue,moreSet);
+        String sql = buildUpdateSQL("patient_data",whereColumn,whereValue,moreSet);
         try {
             Connection conn = connect();
             Statement stmt = conn.createStatement();
-            stmt.executeQuery(sql);
+            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

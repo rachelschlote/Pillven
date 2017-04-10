@@ -63,7 +63,6 @@ public class ViewPatientData extends ViewPatientDataBO implements ActionListener
 
 
 
-
         panelTwo = new JPanel();
         panelTwo.setLayout(new BorderLayout());
         //jpane = new JScrollPane(table);
