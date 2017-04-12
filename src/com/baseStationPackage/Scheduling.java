@@ -145,6 +145,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
                         days.contains("W"), days.contains("R"), days.contains("F"), days.contains("S")});
                 rows++;
                 time = "";
+                //add break to get rid of array out of bounds
             }
         }
 
