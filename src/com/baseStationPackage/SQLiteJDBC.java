@@ -45,7 +45,7 @@ public class SQLiteJDBC{
         return "SELECT " + select + " FROM " + from;
     }
 
-    public static String buildUpdateSQL(String table, String whereColumn, String whereValue, String moreSet) {
+    public static String buildUpdateSQL(String table, String whereColumn, Object whereValue, String moreSet) {
         return "UPDATE " + table +
                 " SET " + moreSet +
                 " WHERE " + whereColumn + "= '" + whereValue + "'";

@@ -1,6 +1,9 @@
 package com.baseStationPackage;
 
 
+import com.mysql.fabric.xmlrpc.base.Array;
+import javafx.application.Preloader;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -8,22 +11,28 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Objects;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Scheduling extends SchedulingBO implements ActionListener{
     private JFrame frame;
     private JPanel panelOne;
     private JPanel panelTwo;
+    private JPanel panelThree;
     private JPanel panelMain;
     private JTable table;
     private JLabel med;
-    private String selectedMed=null;
+    private String selectedMed="";
     private Vector header;
     private Vector data;
     private JButton[] myButtons = new JButton[6];
     private  int rows = 0;
     private DefaultTableModel dmodel;
+    private JButton saveButton = new JButton("Save");
+    private JButton cancelButton = new JButton("Cancel");
+    private int currentMedNum;
+
 
     Scheduling() {
         initialize();
@@ -32,7 +41,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
     public void initialize() {
         frame = new JFrame("Medication Schedule");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600,200);
+        frame.setSize(700,300);
         frame.setResizable(true);
         frame.setLayout(new BorderLayout());
 
@@ -97,6 +106,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
 
 
 
+
         Vector medNames = getMedNames();
 
         for (int i=0; i<6; i++)
@@ -108,51 +118,142 @@ public class Scheduling extends SchedulingBO implements ActionListener{
             myButtons[i].setBackground(Color.white);
             panelOne.add(myButtons[i]);
         }
+
+        panelThree = new JPanel();
+        panelThree.setLayout(new FlowLayout());
+
+        saveButton.setActionCommand("Save");
+        saveButton.addActionListener(this);
+        cancelButton.setActionCommand("Cancel");
+        cancelButton.addActionListener(this);
+        panelThree.add(saveButton);
+        panelThree.add(cancelButton);
+
+
         panelMain.add(panelOne);
         panelMain.add(panelTwo);
+        panelMain.add(panelThree);
         frame.add(new JScrollPane(panelMain));
         frame.setVisible(true);
     }
     public void actionPerformed(ActionEvent e) {
         String medTimeString = null;
-        String days = "";
-        String time = "";
-        for(int i=0;i<6;i++){
-            myButtons[i].setBackground(Color.white);
-            if(e.getActionCommand().equals(Integer.toString(i))) {
-                myButtons[i].setBackground(Color.red);
-                selectedMed = myButtons[i].getText();
-                Vector medTimes = getMedTimes();
-                medTimeString = (String) ((Vector) medTimes.get(0)).get(i);
-            }
-        }
-        //getdays
-        int position = 0;
-        while(position<medTimeString.length()) {
-            days = "";
-            while(Character.isLetter(medTimeString.charAt(position)) && position<medTimeString.length()) {
-                days += medTimeString.charAt(position);
-                position++;
-            }
-            //get corresponding times
-            while(!Character.isLetter(medTimeString.charAt(position)) && position<(medTimeString.length()-4)) {
-                time = "" + medTimeString.charAt(position) + medTimeString.charAt(position+1)
-                        + medTimeString.charAt(position+2) + medTimeString.charAt(position+3)
-                        + medTimeString.charAt(position+4);
-                position+=5;
-                //row for first time
-                dmodel.addRow(new Object[]{time, days.contains("U"), days.contains("M"), days.contains("T"),
-                        days.contains("W"), days.contains("R"), days.contains("F"), days.contains("S")});
-                rows++;
-                time = "";
-                //add break to get rid of array out of bounds
-            }
-        }
+        String groupDay = "";
+        String groupTime = "";
+        String groupWhole = "";
+        String savedTimeString = "";
 
+        if(e.getActionCommand().matches("\\d{1}")) {
+            int count = dmodel.getRowCount();
+            if(count!=0) {
+                for (int r = 0; r<count;r++) {
+                    dmodel.removeRow(0);
+                }
+            }
+            for(int i=0;i<6;i++){
+                myButtons[i].setBackground(Color.white);
+                if(e.getActionCommand().equals(Integer.toString(i))) {
+                    myButtons[i].setBackground(Color.red);
+                    currentMedNum = i;
+                    selectedMed = myButtons[i].getText();
+                    Vector medTimes = getMedTimes();
+                    medTimeString = (String) ((Vector) medTimes.get(0)).get(i);
+                }
+            }
+            String regexDay = "(([UMTWRFS]+))";
+            Pattern patternDay =  Pattern.compile(regexDay);
+            Matcher matcherDay;
+
+            String regexTime = "(([\\d{2}:\\d{2}]{5}))";
+            Pattern patternTime =  Pattern.compile(regexTime);
+            Matcher matcherTime;
+
+            String regexWhole = "(([UMTWRFS]+)([\\d{2}:\\d{2}]+))";
+            Pattern patternWhole =  Pattern.compile(regexWhole);
+            Matcher matcherWhole = patternWhole.matcher(medTimeString);
+            while(matcherWhole.find()) {
+                groupWhole = matcherWhole.group();
+                matcherTime = patternTime.matcher(groupWhole);
+                matcherDay = patternDay.matcher(groupWhole);
+                while(matcherDay.find()) {
+                    groupDay = matcherDay.group();
+
+                    while(matcherTime.find()) {
+                        groupTime = matcherTime.group();
+
+                        dmodel.addRow(new Object[]{groupTime, groupDay.contains("U"), groupDay.contains("M"), groupDay.contains("T"),
+                                groupDay.contains("W"), groupDay.contains("R"), groupDay.contains("F"), groupDay.contains("S")});
+                    }
+                }
+            }
+
+
+
+
+        }
+        else if(e.getActionCommand().equals("Save")) {
+            //duplicate times not allowed
+            Vector savedSchedule = dmodel.getDataVector();
+            String arrTime[] = new String[savedSchedule.size()];
+            for(int i = 0;i< (savedSchedule.size());i++) {
+                savedTimeString = (String) ((Vector) savedSchedule.get(i)).get(0);
+                arrTime[i] = savedTimeString;
+                for(int k = i+1;k<savedSchedule.size();k++) {
+                    String C = (String) ((Vector) savedSchedule.get(k)).get(0);
+                    if(savedTimeString.equals(C)) {
+                        JOptionPane.showMessageDialog(frame, "You may not enter duplicate time " + C + ". Please try again.");
+                    }
+                }
+            }
+            //duplicate days grouped
+            String arrDay[] = new String[savedSchedule.size()];
+            for(int j = 0;j< (savedSchedule.size());j++) {
+                String savedDayString = "";
+               if(dmodel.getValueAt(j,1).equals(true)) {
+                    savedDayString += "U";
+               }
+                if(dmodel.getValueAt(j,2).equals(true)) {
+                    savedDayString += "M";
+                }
+                if(dmodel.getValueAt(j,3).equals(true)) {
+                    savedDayString += "T";
+                }
+                if(dmodel.getValueAt(j,4).equals(true)) {
+                    savedDayString += "W";
+                }
+                if(dmodel.getValueAt(j,5).equals(true)) {
+                    savedDayString += "R";
+                }
+                if(dmodel.getValueAt(j,6).equals(true)) {
+                    savedDayString += "F";
+                }
+                if(dmodel.getValueAt(j,7).equals(true)) {
+                    savedDayString += "S";
+                }
+                arrDay[j] = savedDayString;
+            }
+
+            String updateString = "";
+            for(int v = 0; v<savedSchedule.size();v++) {
+                updateString += arrDay[v] +arrTime[v];
+            }
+
+
+            set(1,currentMedNum+1,"'" + updateString + "'");
+
+        }
+        else if(e.getActionCommand().equals("Cancel")) {
+            frame.dispose();
+            new Scheduling();
+        }
 
     }
 
-
+    private void displayErrorMessage(Boolean duplicates, String dup) {
+        if(duplicates) {
+            JOptionPane.showMessageDialog(frame, "Duplicate time " + dup +". Please try again.");
+        }
+    }
 
 
 
