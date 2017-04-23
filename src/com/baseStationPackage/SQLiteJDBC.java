@@ -10,13 +10,12 @@ public class SQLiteJDBC{
     public static Connection connect() {
         Connection conn = null;
         try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
             Properties prop = new Properties();
             prop.setProperty("user","root");
             prop.setProperty("password","password");
-            prop.setProperty("useSSL", "false");
-            prop.setProperty("autoReconnect", "true");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pillvendatabase",prop);
-        } catch (SQLException e) {
+            conn = DriverManager.getConnection("jdbc:mysql://192.168.1.172:3306/pillvendatabase",prop);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return conn;

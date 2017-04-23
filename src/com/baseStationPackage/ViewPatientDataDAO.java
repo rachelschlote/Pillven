@@ -22,8 +22,8 @@ public class ViewPatientDataDAO extends SQLiteJDBC{
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return dropDownNames;
-    }
+                return dropDownNames;
+                }
 
 
     public static Vector<Vector> getRowDataFromDatabase(String select, String from, String where, String is) {
@@ -31,7 +31,7 @@ public class ViewPatientDataDAO extends SQLiteJDBC{
         return row;
     }
 
-    public static void setRowDataToDatabase(Vector data) {
+public static void setRowDataToDatabase(Vector data) {
         Vector colNames = getColNamesFromDatabase("*", "patient_data");
         String setValue = "";
         String setColumn = "";
@@ -41,21 +41,21 @@ public class ViewPatientDataDAO extends SQLiteJDBC{
         whereValue = data.get(0).toString();//get patient num value @todo create key column
         whereColumn = colNames.get(0).toString();//gets num
         for(int i = 1; i<data.size(); i++) {//for loop skips 0 because its the name
-            setColumn = colNames.get(i).toString();
-            setValue = data.get(i).toString();
-            moreSet = moreSet + moreSetSQL(setColumn,setValue);
-            if(i!=(data.size()-1)) {
-                moreSet = moreSet + ", ";
-            }
+        setColumn = colNames.get(i).toString();
+        setValue = data.get(i).toString();
+        moreSet = moreSet + moreSetSQL(setColumn,setValue);
+        if(i!=(data.size()-1)) {
+        moreSet = moreSet + ", ";
+        }
         }
         String sql = buildUpdateSQL("patient_data",whereColumn,whereValue,moreSet);
         try {
-            Connection conn = connect();
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
+        Connection conn = connect();
+        Statement stmt = conn.createStatement();
+        stmt.executeUpdate(sql);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        System.out.println(e.getMessage());
         }
-    }
+        }
 
-}
+        }
