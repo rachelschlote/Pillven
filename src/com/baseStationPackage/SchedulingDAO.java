@@ -11,11 +11,11 @@ public class SchedulingDAO extends SQLiteJDBC{
 
     Vector getNamesRaw() {
         Vector sched;
-        sched = getRowData("MED1,MED2,MED3,MED4,MED5,MED6","med_sched",null,null);
+        sched = getRowData("MED1,MED2,MED3,MED4,MED5,MED6,MED7","med_sched",null,null);
         return sched;
    }
    Vector getMedTimesRaw(){
-        Vector medTimes = getRowData("TIME1,TIME2,TIME3,TIME4,TIME5,TIME6","med_sched",null,null);
+        Vector medTimes = getRowData("TIME1,TIME2,TIME3,TIME4,TIME5,TIME6,TIME7","med_sched",null,null);
         return medTimes;
    }
    void setMedSchedChange(int patNumVal,int index, String newSched) {
