@@ -1,8 +1,9 @@
 package com.baseStationPackage;
 
 
-import com.mysql.fabric.xmlrpc.base.Array;
-import javafx.application.Preloader;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -31,15 +32,23 @@ public class Scheduling extends SchedulingBO implements ActionListener{
     private DefaultTableModel dmodel;
     private JButton saveButton = new JButton("Save");
     private JButton cancelButton = new JButton("Cancel");
+    private JButton addNewRowButton = new JButton("New Time");
+    private JLabel removeLable = new JLabel("Remove Time: ");
+    private JComboBox removeRowCombo;
+    private JButton removeButton = new JButton("Remove");
     private int currentMedNum;
+    private Boolean hasPrevTab = false;
+    private Boolean isNew=false;
+    private String patNum;
 
 
-    Scheduling() {
+    Scheduling(String num) {
+        patNum = num;
         initialize();
     }
 
     public void initialize() {
-        frame = new JFrame("Medication Schedule");
+        frame = new JFrame("Medication Schedule For Patient Number: ");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(700,300);
         frame.setResizable(true);
@@ -55,6 +64,15 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         String[] columnNames = {" ","Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
         Object data[][]={};
         dmodel=new DefaultTableModel(data,columnNames);
+        dmodel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if(isNew) {
+                    rePopTimeCombo();
+                    isNew = false;
+                }
+            }
+        });
         table = new JTable(dmodel);
         for(int i = 1; i<8;i++){
             TableColumn tc = table.getColumnModel().getColumn(i);
@@ -126,8 +144,17 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         saveButton.addActionListener(this);
         cancelButton.setActionCommand("Cancel");
         cancelButton.addActionListener(this);
+        addNewRowButton.addActionListener(this);
+        addNewRowButton.setActionCommand("Add");
+        removeRowCombo = new JComboBox();
+        removeButton.addActionListener(this);
+        removeButton.setActionCommand("Remove");
         panelThree.add(saveButton);
         panelThree.add(cancelButton);
+        panelThree.add(addNewRowButton);
+        panelThree.add(removeLable);
+        //panelThree.add(removeRowCombo);
+        panelThree.add(removeButton);
 
 
         panelMain.add(panelOne);
@@ -144,6 +171,16 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         String savedTimeString = "";
 
         if(e.getActionCommand().matches("\\d{1}")) {
+            if(hasPrevTab) {
+                int dialogButton = JOptionPane.YES_NO_OPTION;
+               int diologAns = JOptionPane.showConfirmDialog(frame,"Do you want to save any changes made?","Message",dialogButton);
+               if(diologAns == JOptionPane.YES_OPTION) {
+                   saveButton.doClick();
+               }
+            }
+            hasPrevTab = true;
+            //panelThree.remove(removeRowCombo);
+            Vector timeData = new Vector();
             int count = dmodel.getRowCount();
             if(count!=0) {
                 for (int r = 0; r<count;r++) {
@@ -180,16 +217,17 @@ public class Scheduling extends SchedulingBO implements ActionListener{
 
                     while(matcherTime.find()) {
                         groupTime = matcherTime.group();
-
+                        //timeData.addElement(groupTime.toString());
                         dmodel.addRow(new Object[]{groupTime, groupDay.contains("U"), groupDay.contains("M"), groupDay.contains("T"),
                                 groupDay.contains("W"), groupDay.contains("R"), groupDay.contains("F"), groupDay.contains("S")});
                     }
                 }
             }
 
+            rePopTimeCombo();
 
 
-
+            isNew = true;
         }
         else if(e.getActionCommand().equals("Save")) {
             //duplicate times not allowed
@@ -244,21 +282,40 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         }
         else if(e.getActionCommand().equals("Cancel")) {
             frame.dispose();
-            new Scheduling();
+            new Scheduling(patNum);
         }
+        else if(e.getActionCommand().equals("Add")) {
+            dmodel.addRow(new Object[]{"", false,false,false,false,false,false,false});
+            isNew = true;
+        }
+        else if(e.getActionCommand().equals("Remove")) {
+            Vector savedSchedule = dmodel.getDataVector();
+            for(int i = 0;i< (savedSchedule.size());i++) {
+                if(removeRowCombo.getSelectedItem().toString().equals((String) ((Vector) savedSchedule.get(i)).get(0))) {
+                    dmodel.removeRow(i);
+                    removeRowCombo.removeItemAt(i);
+                }
 
+            }
+
+
+        }
+    }
+    private void rePopTimeCombo() {
+        Vector pop = new Vector();
+       panelThree.remove(removeRowCombo);
+        for(int i = 0;i<dmodel.getRowCount();i++) {
+            pop.addElement(dmodel.getValueAt(i,0));
+        }
+        removeRowCombo = new JComboBox(pop);
+        panelThree.add(removeRowCombo);
     }
 
-    private void displayErrorMessage(Boolean duplicates, String dup) {
-        if(duplicates) {
-            JOptionPane.showMessageDialog(frame, "Duplicate time " + dup +". Please try again.");
-        }
-    }
 
 
 
     public static void main(String[] args)
     {
-        new Scheduling();
+        //new Scheduling();
     }
 }

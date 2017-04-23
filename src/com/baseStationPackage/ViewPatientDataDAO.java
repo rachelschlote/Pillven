@@ -27,7 +27,8 @@ public class ViewPatientDataDAO extends SQLiteJDBC{
 
 
     public static Vector<Vector> getRowDataFromDatabase(String select, String from, String where, String is) {
-        return getRowData(select,from,where,is);
+        Vector row = getRowData(select,from,where,is);
+        return row;
     }
 
     public static void setRowDataToDatabase(Vector data) {
@@ -37,8 +38,8 @@ public class ViewPatientDataDAO extends SQLiteJDBC{
         String whereColumn = "";
         String whereValue = "";
         String moreSet = "";
-        whereValue = data.get(0).toString();//get Full Name value @todo create key column
-        whereColumn = colNames.get(0).toString();//gets "NAME
+        whereValue = data.get(0).toString();//get patient num value @todo create key column
+        whereColumn = colNames.get(0).toString();//gets num
         for(int i = 1; i<data.size(); i++) {//for loop skips 0 because its the name
             setColumn = colNames.get(i).toString();
             setValue = data.get(i).toString();

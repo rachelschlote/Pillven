@@ -1,10 +1,13 @@
 package com.baseStationPackage;
 
 
+import com.mysql.fabric.xmlrpc.base.Array;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -113,6 +116,8 @@ public class ViewPatientData extends ViewPatientDataBO implements ActionListener
         String searchByText = searchByTextField.getText();
         rowData = getRowData(searchBySelection, searchByText);
         //update rows of data
+
+        dataLabels.addElement( "Check Mark" ); // added
         ((DefaultTableModel) table.getModel()).setDataVector(rowData, dataLabels);
         isEditing(true);
     }
