@@ -1,7 +1,6 @@
 package com.baseStationPackage;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,8 +10,7 @@ public class BaseStation implements ActionListener {
     private JMenuBar menuBar;
     private JMenu file;
     private JMenuItem viewPatientData;
-    private JMenuItem viewUnitData;
-    private JMenuItem remoteControl;
+    private JMenuItem viewMedSched;
     private JMenu options;
     private JMenuItem resetPassword;
     private JMenuItem addNewUser;
@@ -37,13 +35,9 @@ public class BaseStation implements ActionListener {
         viewPatientData.setActionCommand("View Patient Data");
         viewPatientData.addActionListener(this);
 
-        viewUnitData = new JMenuItem("View Unit Data");
-        viewUnitData.setActionCommand("View Unit Data");
-        viewUnitData.addActionListener(this);
-
-        remoteControl = new JMenuItem("Remote Control");
-        remoteControl.setActionCommand("Remote Control");
-        remoteControl.addActionListener(this);
+        viewMedSched = new JMenuItem("View Medication Schedule");
+        viewMedSched.setActionCommand("View Medication Schedule");
+        viewMedSched.addActionListener(this);
 
         options = new JMenu("Options");
         options.setActionCommand("Options");
@@ -53,16 +47,10 @@ public class BaseStation implements ActionListener {
         resetPassword.setActionCommand("Reset Password");
         resetPassword.addActionListener(this);
 
-        addNewUser = new JMenuItem("Add New User");
-        addNewUser.setActionCommand("Add New User");
-        addNewUser.addActionListener(this);
-
         menuBar.add(file);
         menuBar.add(options);
         file.add(viewPatientData);
-        file.add(viewUnitData);
-        file.add(remoteControl);
-        options.add(addNewUser);
+        file.add(viewMedSched);
         options.add(resetPassword);
 
 
@@ -81,6 +69,14 @@ public class BaseStation implements ActionListener {
         if(e.getActionCommand().equals("View Patient Data")) {
             frame.dispose();
             new ViewPatientData();
+        }
+        if(e.getActionCommand().equals("View Medication Schedule")) {
+            frame.dispose();
+            new Scheduling();
+        }
+        if(e.getActionCommand().equals("Reset Password")) {
+            frame.dispose();
+            new ResetPassword();
         }
 
     }

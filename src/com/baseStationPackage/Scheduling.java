@@ -31,6 +31,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
     private  int rows = 0;
     private DefaultTableModel dmodel;
     private JButton saveButton = new JButton("Save");
+    private JButton backButton = new JButton("Back");
     private JButton cancelButton = new JButton("Cancel");
     private JButton addNewRowButton = new JButton("New Time");
     private JLabel removeLable = new JLabel("Remove Time: ");
@@ -148,6 +149,8 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         panelThree = new JPanel();
         panelThree.setLayout(new FlowLayout());
 
+        backButton.setActionCommand("Back");
+        backButton.addActionListener(this);
         saveButton.setActionCommand("Save");
         saveButton.addActionListener(this);
         cancelButton.setActionCommand("Cancel");
@@ -157,6 +160,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         removeRowCombo = new JComboBox();
         removeButton.addActionListener(this);
         removeButton.setActionCommand("Remove");
+        panelThree.add(backButton);
         panelThree.add(saveButton);
         panelThree.add(cancelButton);
         panelThree.add(addNewRowButton);
@@ -200,7 +204,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
             for(int i=0;i<7;i++){
                 myButtons[i].setBackground(Color.white);
                 if(e.getActionCommand().equals(Integer.toString(i))) {
-                    myButtons[i].setBackground(Color.blue);
+                    myButtons[i].setBackground(Color.cyan);
                     currentMedNum = i;
                     selectedMed = myButtons[i].getText();
                     Vector medTimes = getMedTimes();
@@ -314,6 +318,10 @@ public class Scheduling extends SchedulingBO implements ActionListener{
             }
 
 
+        }
+        else if(e.getActionCommand().equals("Back")) {
+            frame.dispose();
+            new BaseStation();
         }
     }
     private void rePopTimeCombo() {

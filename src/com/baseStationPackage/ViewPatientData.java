@@ -29,6 +29,7 @@ public class ViewPatientData extends ViewPatientDataBO implements ActionListener
     private JComboBox searchByCombo;
     private JTextField searchByTextField;
     private JLabel searchByLabel;
+    private JButton backButton;
     private JTable table;
     private Vector rowData = null;
     private Vector dataLabels;
@@ -89,10 +90,15 @@ public class ViewPatientData extends ViewPatientDataBO implements ActionListener
         saveChangesButton.setActionCommand("Save Changes");
         saveChangesButton.addActionListener(this);
 
+        backButton = new JButton("Back");
+        backButton.setActionCommand("Back");
+        backButton.addActionListener(this);
+
         cancelChangesButton = new JButton("Cancel Changes");
         cancelChangesButton.setActionCommand("Cancel Changes");
         cancelChangesButton.addActionListener(this);
 
+        panelOne.add(backButton);
         panelOne.add(searchByLabel);
         panelOne.add(searchByCombo);
         panelOne.add(searchByCombo);
@@ -137,6 +143,7 @@ public class ViewPatientData extends ViewPatientDataBO implements ActionListener
     }
 
     public void isEditing(boolean editing) {
+        backButton.setVisible(!editing);
         saveChangesButton.setVisible(editing);
         cancelChangesButton.setVisible(editing);
         searchByLabel.setVisible(!editing);
@@ -158,7 +165,10 @@ public class ViewPatientData extends ViewPatientDataBO implements ActionListener
         if(e.getActionCommand().equals("Cancel Changes")) {
             cancelChanges();
         }
-
+        if(e.getActionCommand().equals("Back")) {
+            frame.dispose();
+            new BaseStation();
+        }
 
     }
     public static void main(String[] args)
