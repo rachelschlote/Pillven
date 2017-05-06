@@ -14,7 +14,7 @@ public class SQLiteJDBC{
             Properties prop = new Properties();
             prop.setProperty("user","root");
             prop.setProperty("password","password");
-            conn = DriverManager.getConnection("jdbc:mysql://192.168.1.172:3306/pillvendatabase",prop);
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pillvendatabase",prop);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -35,8 +35,24 @@ public class SQLiteJDBC{
         }
         return null;
     }
+    public static Object select(String select, String from, String where, int is) {
+
+        String sql = buildSelectSQL(select, from, where, is);
+        try (Connection conn = connect();
+             Statement stmt  = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            return rs.getObject(select);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
 
     public static String buildSelectSQL(String select, String from, String where, String is) {
+        return "SELECT " + select + " FROM " + from + " WHERE " + where + "=" + "'" + is + "'";
+    }
+    public static String buildSelectSQL(String select, String from, String where, int is) {
         return "SELECT " + select + " FROM " + from + " WHERE " + where + "=" + "'" + is + "'";
     }
 

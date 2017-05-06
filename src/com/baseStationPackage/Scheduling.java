@@ -27,7 +27,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
     private String selectedMed="";
     private Vector header;
     private Vector data;
-    private JButton[] myButtons = new JButton[6];
+    private JButton[] myButtons = new JButton[7];
     private  int rows = 0;
     private DefaultTableModel dmodel;
     private JButton saveButton = new JButton("Save");
@@ -39,11 +39,11 @@ public class Scheduling extends SchedulingBO implements ActionListener{
     private int currentMedNum;
     private Boolean hasPrevTab = false;
     private Boolean isNew=false;
-    private String patNum;
+    private int patNum = 1;
+    private int quantIndex = 0;
 
 
-    Scheduling(String num) {
-        patNum = num;
+    Scheduling() {
         initialize();
     }
 
@@ -61,7 +61,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         panelOne.setLayout(new FlowLayout());
 
 
-        String[] columnNames = {" ","Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        String[] columnNames = {" ", "Quantity","Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
         Object data[][]={};
         dmodel=new DefaultTableModel(data,columnNames);
         dmodel.addTableModelListener(new TableModelListener() {
@@ -74,7 +74,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
             }
         });
         table = new JTable(dmodel);
-        for(int i = 1; i<8;i++){
+        for(int i = 2; i<9;i++){
             TableColumn tc = table.getColumnModel().getColumn(i);
             tc.setCellEditor(table.getDefaultEditor(Boolean.class));
             tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
@@ -107,6 +107,14 @@ public class Scheduling extends SchedulingBO implements ActionListener{
 
         comboCol.setCellEditor(new DefaultCellEditor(comboBox));
 
+        TableColumn quantCol = table.getColumnModel().getColumn(1);
+
+        JComboBox quantBox = new JComboBox();
+
+        for(int g = 1;g<=5;g++) {
+            quantBox.addItem(Integer.toString(g));
+        }
+        quantCol.setCellEditor(new DefaultCellEditor(quantBox));
 
         panelTwo = new JPanel();
         panelTwo.setLayout(new BorderLayout());
@@ -127,7 +135,7 @@ public class Scheduling extends SchedulingBO implements ActionListener{
 
         Vector medNames = getMedNames();
 
-        for (int i=0; i<6; i++)
+        for (int i=0; i<7; i++)
         {
             myButtons[i] = new JButton((String) ((Vector) medNames.get(0)).get(i));
             myButtons[i].setSize(100, 40);
@@ -169,6 +177,8 @@ public class Scheduling extends SchedulingBO implements ActionListener{
         String groupTime = "";
         String groupWhole = "";
         String savedTimeString = "";
+        String savedQuantString = "";
+        quantIndex = 0;
 
         if(e.getActionCommand().matches("\\d{1}")) {
             if(hasPrevTab) {
@@ -187,10 +197,10 @@ public class Scheduling extends SchedulingBO implements ActionListener{
                     dmodel.removeRow(0);
                 }
             }
-            for(int i=0;i<6;i++){
+            for(int i=0;i<7;i++){
                 myButtons[i].setBackground(Color.white);
                 if(e.getActionCommand().equals(Integer.toString(i))) {
-                    myButtons[i].setBackground(Color.red);
+                    myButtons[i].setBackground(Color.blue);
                     currentMedNum = i;
                     selectedMed = myButtons[i].getText();
                     Vector medTimes = getMedTimes();
@@ -218,8 +228,10 @@ public class Scheduling extends SchedulingBO implements ActionListener{
                     while(matcherTime.find()) {
                         groupTime = matcherTime.group();
                         //timeData.addElement(groupTime.toString());
-                        dmodel.addRow(new Object[]{groupTime, groupDay.contains("U"), groupDay.contains("M"), groupDay.contains("T"),
+
+                        dmodel.addRow(new Object[]{groupTime,getMedQuantBO(patNum,quantIndex,currentMedNum), groupDay.contains("U"), groupDay.contains("M"), groupDay.contains("T"),
                                 groupDay.contains("W"), groupDay.contains("R"), groupDay.contains("F"), groupDay.contains("S")});
+                    quantIndex++;
                     }
                 }
             }
@@ -230,12 +242,15 @@ public class Scheduling extends SchedulingBO implements ActionListener{
             isNew = true;
         }
         else if(e.getActionCommand().equals("Save")) {
+
             //duplicate times not allowed
             Vector savedSchedule = dmodel.getDataVector();
             String arrTime[] = new String[savedSchedule.size()];
             for(int i = 0;i< (savedSchedule.size());i++) {
                 savedTimeString = (String) ((Vector) savedSchedule.get(i)).get(0);
                 arrTime[i] = savedTimeString;
+                savedQuantString += (String) ((Vector) savedSchedule.get(i)).get(1);
+
                 for(int k = i+1;k<savedSchedule.size();k++) {
                     String C = (String) ((Vector) savedSchedule.get(k)).get(0);
                     if(savedTimeString.equals(C)) {
@@ -243,29 +258,30 @@ public class Scheduling extends SchedulingBO implements ActionListener{
                     }
                 }
             }
+            setMedQuantBO(patNum,currentMedNum+1,savedQuantString);
             //duplicate days grouped
             String arrDay[] = new String[savedSchedule.size()];
             for(int j = 0;j< (savedSchedule.size());j++) {
                 String savedDayString = "";
-               if(dmodel.getValueAt(j,1).equals(true)) {
+               if(dmodel.getValueAt(j,2).equals(true)) {
                     savedDayString += "U";
                }
-                if(dmodel.getValueAt(j,2).equals(true)) {
+                if(dmodel.getValueAt(j,3).equals(true)) {
                     savedDayString += "M";
                 }
-                if(dmodel.getValueAt(j,3).equals(true)) {
+                if(dmodel.getValueAt(j,4).equals(true)) {
                     savedDayString += "T";
                 }
-                if(dmodel.getValueAt(j,4).equals(true)) {
+                if(dmodel.getValueAt(j,5).equals(true)) {
                     savedDayString += "W";
                 }
-                if(dmodel.getValueAt(j,5).equals(true)) {
+                if(dmodel.getValueAt(j,6).equals(true)) {
                     savedDayString += "R";
                 }
-                if(dmodel.getValueAt(j,6).equals(true)) {
+                if(dmodel.getValueAt(j,7).equals(true)) {
                     savedDayString += "F";
                 }
-                if(dmodel.getValueAt(j,7).equals(true)) {
+                if(dmodel.getValueAt(j,8).equals(true)) {
                     savedDayString += "S";
                 }
                 arrDay[j] = savedDayString;
@@ -277,15 +293,14 @@ public class Scheduling extends SchedulingBO implements ActionListener{
             }
 
 
-            set(1,currentMedNum+1,"'" + updateString + "'");
-
+            setMedSched(1,currentMedNum+1,"'" + updateString + "'");
         }
         else if(e.getActionCommand().equals("Cancel")) {
             frame.dispose();
-            new Scheduling(patNum);
+            new Scheduling();
         }
         else if(e.getActionCommand().equals("Add")) {
-            dmodel.addRow(new Object[]{"", false,false,false,false,false,false,false});
+            dmodel.addRow(new Object[]{"","1", false,false,false,false,false,false,false});
             isNew = true;
         }
         else if(e.getActionCommand().equals("Remove")) {
@@ -316,6 +331,6 @@ public class Scheduling extends SchedulingBO implements ActionListener{
 
     public static void main(String[] args)
     {
-        //new Scheduling();
+        new Scheduling();
     }
 }
